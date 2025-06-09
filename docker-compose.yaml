@@ -1,0 +1,49 @@
+
+services:
+  app:
+    build:
+      context: images/nginx
+    ports:
+      - 8000:80
+      - 4443:443
+    volumes:
+      - ./src:/var/www/html
+    links:
+      - php-fpm
+  
+  php-fpm:
+    build: 
+      context: images/php-fpm
+    volumes:
+      - ./src:/var/www/html
+
+  db:
+    image: mariadb:11.7
+    command:
+      --max_allowed_packet=64M
+      --optimizer_use_condition_selectivity=1
+      --optimizer_switch="rowid_filter=off"
+      --log_bin_trust_function_creators=1
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_HOST: db
+      MYSQL_ROOT_PASSWORD: magento
+      MYSQL_DATABASE: magento
+      MYSQL_USER: magento
+      MYSQL_PASSWORD: magento
+    volumes:
+      - dbdata:/var/lib/mysql
+  redis:
+   image: redis:7.2-alpine
+   ports:
+     - "6379:6379"
+
+  maildev:
+    image: maildev/maildev
+    ports:
+      - "1080:1080"
+
+volumes:
+  appdata:
+  dbdata:
