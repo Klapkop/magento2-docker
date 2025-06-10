@@ -1,24 +1,24 @@
 
 services:
-  app:
+  web:
     build:
       context: images/nginx
     ports:
-      - 8000:80
-      - 4443:443
-    volumes:
-      - ./src:/var/www/html
-    links:
-      - php-fpm
-  
-  php-fpm:
-    build: 
-      context: images/php-fpm
+      - 8000:8000
     volumes:
       - ./src:/var/www/html
 
+  php-fpm:
+    build: 
+      context: images/php-fpm
+    environment:
+      COMPOSER_HOME: /composer
+    volumes:
+      - ./src:/var/www/html
+      - ~/.composer:/composer
+
   db:
-    image: mariadb:11.7
+    image: mariadb:11.4
     command:
       --max_allowed_packet=64M
       --optimizer_use_condition_selectivity=1
@@ -34,10 +34,34 @@ services:
       MYSQL_PASSWORD: magento
     volumes:
       - dbdata:/var/lib/mysql
+  
+  phpmyadmin:
+    image: phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: magento
+      MYSQL_ROOT_PASSWORD: magento
+    ports:
+      - "8080:80"
+
   redis:
    image: redis:7.2-alpine
    ports:
      - "6379:6379"
+
+  opensearch:
+    image: opensearchproject/opensearch
+    environment:
+      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+      OPENSEARCH_INITIAL_ADMIN_PASSWORD: M@g3ntoSearch
+      discovery.type: single-node
+      plugins.security.disabled: true
+      
+    volumes:
+      - searchdata:/usr/share/opensearch/data
+    ports:
+     - "9200:9200"
 
   maildev:
     image: maildev/maildev
@@ -45,5 +69,5 @@ services:
       - "1080:1080"
 
 volumes:
-  appdata:
   dbdata:
+  searchdata:

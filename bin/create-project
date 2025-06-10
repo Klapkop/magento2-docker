@@ -1,0 +1,3 @@
+#!/bin/bash
+MAGENTO_VERSION=${1:-"2.4.8"}
+docker compose run -it --rm php-fpm composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition:$MAGENTO_VERSION .

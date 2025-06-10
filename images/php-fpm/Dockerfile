@@ -11,15 +11,22 @@ RUN  curl https://getcomposer.org/download/${COMPOSER_VERSION}/composer.phar -o 
 FROM php:${PHP_VERSION}-fpm
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y update && apt-get install -y \
+    unzip \
     libicu-dev \
     libzip-dev \
     libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    zlib1g-dev \
     libxml2-dev \
     libxslt1-dev \
     librabbitmq-dev \
+    msmtp-mta \
+    mailutils \
     && rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-install -j$(nproc) \
+RUN docker-php-ext-configure gd --with-jpeg --with-freetype && \
+    docker-php-ext-install -j$(nproc) \
     bcmath \
     intl \
     ftp \
@@ -32,7 +39,20 @@ RUN docker-php-ext-install -j$(nproc) \
 RUN pecl install amqp \
     && docker-php-ext-enable amqp
 
+
 COPY --from=build /bin/composer /bin/composer
+RUN adduser --home /var/www --disabled-password app
+
+# Megento php config
+COPY magento-php.ini /usr/local/etc/php/conf.d/magento2.ini
+
+
+# Redirect mail to maildev
+COPY --chown=app:app msmtprc  /var/www/.msmtprc
+RUN echo "sendmail_path=sendmail -i -t" >> /usr/local/etc/php/conf.d/php-sendmail.ini && chmod 600 /var/www/.msmtprc
+
+USER app
+
 
 
 
