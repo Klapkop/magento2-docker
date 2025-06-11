@@ -1,0 +1,27 @@
+name: Build Magento php-fpm image
+
+on:
+  push:
+    branches: [ "main" ]
+    # Publish semver tags as releases.
+    tags: [ 'v*.*.*' ]
+    paths:
+      - images/php-fpm/**
+
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - images/php-fpm/**
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-docker-image.yaml
+    with:
+      image_name: ${{ github.repository }}/php-fpm
+      context: ./images/php-fpm
+      publish: ${{ !github.event_name == 'pull_request'}}
