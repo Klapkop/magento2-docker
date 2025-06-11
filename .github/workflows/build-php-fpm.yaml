@@ -1,6 +1,7 @@
 name: Build Magento php-fpm image
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main" ]
     # Publish semver tags as releases.
