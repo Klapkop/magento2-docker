@@ -1,4 +1,4 @@
-name: Build Magento php-fpm image
+name: Build Docker Image
 
 on:
   workflow_call:
