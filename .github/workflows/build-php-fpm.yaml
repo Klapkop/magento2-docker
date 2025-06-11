@@ -25,5 +25,5 @@ jobs:
     with:
       image_name: ${{ github.repository }}/php-fpm
       context: ./images/php-fpm
-      publish: ${{ !github.event_name == 'pull_request'}}
+      publish: ${{ github.event_name != 'pull_request'}}
       registry: ghcr.io
