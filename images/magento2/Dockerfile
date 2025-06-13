@@ -46,6 +46,16 @@ COPY conf/magento-php.ini /usr/local/etc/php/conf.d/magento2.ini
 
 COPY conf/supervisord.conf /etc/supervisord.conf
 COPY bin/run.sh bin/conf.sh /
+
+
+# Setup persistent data
+RUN mkdir -p /data/var data/media data/cache && \
+    chown -R nginx:www-data /data && mkdir -p pub/media app/etc && \
+    ln -s /data/var var  && \
+    ln -s /data/media pub/media  && \
+    ln -s /data/env.php app/etc/env.php && \
+    chown -R nginx:www-data . && chmod -R g+rwx var pub/media
+
 CMD ["/run.sh"]
 
 
