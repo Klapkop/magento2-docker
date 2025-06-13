@@ -24,6 +24,6 @@ jobs:
     uses: ./.github/workflows/build-docker-image.yaml
     with:
       image_name: ${{ github.repository }}/magento2
-      context: ./images/php-fpm
+      context: ./images/magento2
       publish: ${{ github.event_name != 'pull_request'}}
       registry: ghcr.io
