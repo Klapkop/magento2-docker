@@ -1,54 +1,54 @@
 ARG PHP_VERSION="8.3"
 
-FROM php:${PHP_VERSION}-apache
-ARG COMPOSER_VERSION="2.8.9"
+FROM php:${PHP_VERSION}-fpm-alpine
 LABEL org.opencontainers.image.source=https://github.com/Klapkop/magento2-docker
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y update && apt-get install -y \
-    unzip \
-    libicu-dev \
-    libzip-dev \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    zlib1g-dev \
-    libxml2-dev \
-    libxslt1-dev \
-    librabbitmq-dev \
-    msmtp-mta \
-    mailutils \
-    && rm -rf /var/lib/apt/lists/*
+ENV PHP_EXTENSIONS bcmath ftp gd intl opcache pcntl pdo_mysql soap sockets xsl zip
 
-RUN docker-php-ext-configure gd --with-jpeg --with-freetype && \
-    docker-php-ext-install -j$(nproc) \
-    bcmath \
-    intl \
-    ftp \
-    zip \
-    gd \
-    pdo_mysql \
-    soap \
-    xsl \
-    sockets \
-    opcache
+RUN apk --no-cache add \
+        ca-certificates \
+        gettext \
+        bash \
+        git \
+        curl \
+        rsync \
+        sudo \
+        patch \
+        freetype \
+        libpng \
+        libjpeg-turbo \
+        libxslt \
+        libzip \
+        icu-data-full \
+        nginx \
+        supervisor \
+        postfix \
+        unzip 
 
-RUN pecl install amqp \
-    && docker-php-ext-enable amqp
+
+
+# Install and configure PHP extensions
+RUN apk --no-cache add --virtual .build-deps \
+     freetype-dev icu-dev zlib-dev libjpeg-turbo-dev libpng-dev libxml2-dev libxslt-dev libzip-dev linux-headers $PHPIZE_DEPS\
+    && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
+    && docker-php-ext-install -j$(nproc) $PHP_EXTENSIONS \
+    && pecl install apcu redis lzf xdebug zstd \
+    && docker-php-ext-enable apcu redis lzf zstd \
+    && mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && apk del .build-deps
 
 # Install composer
-RUN  cd /tmp && curl https://getcomposer.org/download/${COMPOSER_VERSION}/composer.phar -o composer.phar && \
-     curl https://getcomposer.org/download/${COMPOSER_VERSION}/composer.phar.sha256sum -o composer.phar.sha256sum && \
-     sha256sum -c composer.phar.sha256sum && install -m 0755 composer.phar /bin/composer 
+COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
 
 
 # Magento php config
-COPY magento-php.ini /usr/local/etc/php/conf.d/magento2.ini
-COPY opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+COPY conf/magento-php.ini /usr/local/etc/php/conf.d/magento2.ini
+
+COPY conf/supervisord.conf /etc/supervisord.conf
+COPY bin/run.sh bin/conf.sh /
+CMD ["/run.sh"]
 
 
-# Redirect mail to maildev
-COPY msmtprc  /root/.msmtprc
-RUN chmod 600 /root/.msmtprc
 
 
 
