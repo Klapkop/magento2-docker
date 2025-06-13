@@ -47,6 +47,7 @@ COPY conf/magento-php.ini /usr/local/etc/php/conf.d/magento2.ini
 COPY conf/supervisord.conf /etc/supervisord.conf
 COPY bin/run.sh bin/conf.sh /
 
+COPY conf/magento2.conf /etc/nginx/nginx.d 
 
 # Setup persistent data
 RUN mkdir -p /data/var data/media data/cache && \
