@@ -1,4 +1,4 @@
-name: Build Magento php-fpm image
+name: Build Magento dev image
 
 on:
   workflow_dispatch:
@@ -7,12 +7,12 @@ on:
     # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
     paths:
-      - images/php-fpm/**
+      - images/magento2/**
 
   pull_request:
     branches: [ "main" ]
     paths:
-      - images/php-fpm/**
+      - images/magento2/**
 
 permissions:
   contents: read
@@ -23,7 +23,7 @@ jobs:
   build:
     uses: ./.github/workflows/build-docker-image.yaml
     with:
-      image_name: ${{ github.repository }}/php-fpm
+      image_name: ${{ github.repository }}/magento2
       context: ./images/php-fpm
       publish: ${{ github.event_name != 'pull_request'}}
       registry: ghcr.io
