@@ -1,0 +1,32 @@
+#!/bin/bash
+cd /var/www/html
+
+bin/magento setup:install \
+--db-host=${MAGENTO_DB_HOST:-db} \
+--db-name=${MAGENTO_DB:-magento} \
+--db-user=${MAGENTO_DB_USER:-magento} \
+--db-password=${MAGENTO_DB_PASSWORD:-magento} \
+--admin-firstname=${MAGENTO_ADMIN_FIRSTNAME:-admin} \
+--admin-lastname=${MAGENTO_ADMIN_LASTNAME:-admin} \
+--admin-email=${MAGENTO_ADMIN_EMAIL:-admin@example.com} \
+--admin-user=${MAGENTO_ADMIN_USER:-admin} \
+--admin-password=${MAGENTO_ADMIN_PASSWORD:-admin123} \
+--language=${MAGENTO_LANG:-nl_NL} \
+--currency=${MAGENTO_CURRENCY:-EUR} \
+--timezone=${MAGENTO_TIMEZONE:-Europe/Amsterdam} \
+--use-rewrites=1 \
+--opensearch-host=${MAGENTO_OPENSEARCH_HOST:-opensearch} \
+--opensearch-port=${MAGENTO_OPENSEARCH_PORT:-9200} \
+--opensearch-enable-auth=${MAGENTO_OPENSEARCH_AUTH:-0} \
+--opensearch-username=${MAGENTO_OPENSEARCH_USER:-magento} \
+--opensearch-password=${MAGENTO_OPENSEARCH_PASSWORD:-M@g3nto} \
+--use-secure=${MAGENTO_SECURE:-0} \
+--base-url=${MAGENTO_BASE_URL:-http://localhost} \
+--backend-frontname=${MAGENTO_BACKEND_NAME:-admin} \
+--cache-backend=${MAGENTO_CACHE_BACKEND:-redis} \
+--cache-backend-redis-server=${MAGENTO_CACHE_REDIS_SERVER:-redis} \
+--cache-backend-redis-db=${MAGENTO_CACHE_REDIS_DB:-0} \
+--page-cache=${MAGENTO_PAGE_CACHE:-redis} \
+--page-cache-redis-server=${MAGENTO_PAGE_CACHE_REDIS_SERVER:-redis} \
+--page-cache-redis-db=${MAGENTO_PAGE_CACHE_REDIS_DB:-1} \
+--disable-modules=Magento_TwoFactorAuth,Magento_AdminAdobeImsTwoFactorAuth

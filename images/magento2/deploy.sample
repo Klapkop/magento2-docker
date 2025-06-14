@@ -1,0 +1,22 @@
+#!/bin/bash
+echo "Starting Deployment"
+# Switch to webroot
+DIR="$(cd "$(dirname "$0")" && pwd)"
+cd ${DIR}/../
+
+if [[ ! -f bin/magento ]]; then
+    echo "Magento CLI not found!"
+    exit 1
+fi
+
+if [[ ! -f var/.magento-installed ]]; then
+    # install magento
+    bash -c bin/magento-install
+    touch var/.magento-installed 
+else
+    magento setup:upgrade
+fi
+
+
+# Enforce cache enablement"
+bin/magento cache:enable || exit 1
