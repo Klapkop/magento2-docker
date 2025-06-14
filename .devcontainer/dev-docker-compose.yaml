@@ -1,0 +1,68 @@
+
+services:
+  magento2:
+    build: 
+      context: .
+    environment:
+      DEV_ENV: 1
+    ports:
+      - 8181:80
+    volumes:
+      - ..:/workspace:cached
+      - ~/.composer:/home/app/.composer
+
+  db:
+    image: mariadb:11.4
+    command:
+      --max_allowed_packet=64M
+      --optimizer_use_condition_selectivity=1
+      --optimizer_switch="rowid_filter=off"
+      --log_bin_trust_function_creators=1
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_HOST: db
+      MYSQL_ROOT_PASSWORD: magento
+      MYSQL_DATABASE: magento
+      MYSQL_USER: magento
+      MYSQL_PASSWORD: magento
+    volumes:
+      - dbdata:/var/lib/mysql
+  
+  phpmyadmin:
+    image: phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: magento
+      MYSQL_ROOT_PASSWORD: magento
+    ports:
+      - "8080:80"
+
+  redis:
+   image: redis:7.2-alpine
+   ports:
+     - "6379:6379"
+
+  opensearch:
+    image: opensearchproject/opensearch
+    environment:
+      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+      OPENSEARCH_INITIAL_ADMIN_PASSWORD: M@g3ntoSearch
+      discovery.type: single-node
+      plugins.security.disabled: true
+      
+    volumes:
+      - searchdata:/usr/share/opensearch/data
+    ports:
+     - "9200:9200"
+
+  maildev:
+    image: maildev/maildev
+    ports:
+      - "1080:1080"
+
+volumes:
+  magento2-data:
+  dbdata:
+  searchdata:
